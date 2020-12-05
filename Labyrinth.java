@@ -5,6 +5,9 @@ public class Labyrinth {
 
     int[] keys;
     char[][] labyrinth;
+    Graph graph;
+    int start;
+    int exit;
 
     public Labyrinth(String inputFile) throws IOException, LabyrinthException, NumberFormatException {
 
@@ -29,6 +32,9 @@ public class Labyrinth {
             // Convert the strings to ints
             int width = Integer.parseInt(str_width);
             int length = Integer.parseInt(str_length);
+
+            // Initialize graph, nuymber of nodes is length x width
+            this.graph = new Graph(width*length);
 
             // Convert the line for the keys to an array of strings and subsequently to an array of integers.
 
@@ -65,7 +71,7 @@ public class Labyrinth {
 
                     // Checks to see if the given labyrinth can fit in the our char[][]. Otherwise, throws LabyrinthException
                     if (i >= 2*width-1){
-                        throw new LabyrinthException("ERROR: Incorrect file format. Too many coloumns in labyrinth");
+                        throw new LabyrinthException("ERROR: Incorrect file format. Too many columns in labyrinth");
                     }
 
                     // Adds the char in the string to the char[][] labyrinth
@@ -82,6 +88,26 @@ public class Labyrinth {
 
             /// DO REST FROM HERE
 
+            // Find name of starting and ending nodes
+            int name = 0;
+
+            for (char[] a: this.labyrinth){
+                for (char c: a){
+                    if (c=='s'){
+                        this.start = name;
+                        name++;
+                    }
+                    else if (c=='x'){
+                        this.exit = name;
+                        name++;
+                    }
+                    else if (c=='i'){
+                        name++;
+                    }
+                }
+            }
+
+
 
 
 
@@ -89,8 +115,11 @@ public class Labyrinth {
     }
 
     public void printLabyrinth(){
-        for(char[] a : this.labyrinth)
+
+        for(char[] a : this.labyrinth) {
             System.out.println(Arrays.toString(a));
+        }
+        System.out.println(this.start+" "+this.exit);
     }
 
     public static void main(String[] args) throws IOException, LabyrinthException {
