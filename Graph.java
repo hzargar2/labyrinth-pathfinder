@@ -4,9 +4,9 @@ import java.util.LinkedList;
 public class Graph implements GraphADT{
 
     // Initializes a graph using adjacency list
-    Node[] V;
+    public Node[] V;
     // THis is an array of linked lists that store Edge objects
-    LinkedList<Edge>[] E;
+    public LinkedList<Edge>[] E;
 
     public Graph(int n){
 
@@ -65,8 +65,11 @@ public class Graph implements GraphADT{
     public void insertEdge(Node u, Node v, int edgeType, String label) throws GraphException {
 
         // If either node doesn't exist or if there is already an edge for these nodes, then we throw a graph exception
-        if (nodeExists(u) == false || nodeExists(v) == false || edgeExists(u, v) == true) {
-            throw new GraphException("ERROR: One of the nodes doesn't exist or the edge already exists for this set of nodes.");
+        if (nodeExists(u) == false || nodeExists(v) == false) {
+            throw new GraphException("ERROR: One of the nodes doesn't exist.");
+        }
+        else if (edgeExists(u,v)==true){
+            throw new GraphException("ERROR: The edge already exists for this set of nodes.");
         }
 
         // Otherwise, we add the edge to the graph
@@ -87,8 +90,11 @@ public class Graph implements GraphADT{
     public void insertEdge(Node u, Node v, int edgeType) throws GraphException{
 
         // If either node doesn't exist or if there is already an edge for these nodes, then we throw a graph exception
-        if (nodeExists(u) == false || nodeExists(v) == false || edgeExists(u, v) == true) {
-            throw new GraphException("ERROR: One of the nodes doesn't exist or the edge already exists for this set of nodes.");
+        if (nodeExists(u) == false || nodeExists(v) == false) {
+            throw new GraphException("ERROR: One of the nodes doesn't exist.");
+        }
+        else if (edgeExists(u,v)==true){
+            throw new GraphException("ERROR: The edge already exists for this set of nodes.");
         }
 
         // Otherwise, we add the edge to the graph

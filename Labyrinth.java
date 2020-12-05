@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.Arrays;
+import java.util.LinkedList;
 
 public class Labyrinth {
 
@@ -8,16 +9,17 @@ public class Labyrinth {
     Graph graph;
     int start;
     int exit;
+    int CORRIDOR = -1;
+    int WALL = -2;
 
-    public Labyrinth(String inputFile) throws IOException, LabyrinthException, NumberFormatException {
+    public Labyrinth(String inputFile) throws IOException, LabyrinthException, NumberFormatException, GraphException {
 
         File file = new File(inputFile);
 
         // If the file is empty we throw a LabyrinthException
-        if (file.length() == 0){
+        if (file.length() == 0) {
             throw new LabyrinthException("ERROR: File is empty.");
-        }
-        else{
+        } else {
 
             BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile));
 
@@ -34,14 +36,14 @@ public class Labyrinth {
             int length = Integer.parseInt(str_length);
 
             // Initialize graph, nuymber of nodes is length x width
-            this.graph = new Graph(width*length);
+            this.graph = new Graph(width * length);
 
             // Convert the line for the keys to an array of strings and subsequently to an array of integers.
 
             String[] array_str_keys = str_keys.split(" ");
             int[] array_int_keys = new int[array_str_keys.length];
 
-            for (int i =0; i<array_str_keys.length; i++){
+            for (int i = 0; i < array_str_keys.length; i++) {
                 array_int_keys[i] = Integer.parseInt(array_str_keys[i]);
             }
 
@@ -51,7 +53,7 @@ public class Labyrinth {
             // Initialize a char[][] array with the right size, multiply each dimension by 2 and subtract by 1 because there is an edge
             // between each node that is also stored in a char in char[][] except the last node in each row and column
 
-            this.labyrinth = new char[2*length-1][2*width-1];
+            this.labyrinth = new char[2 * length - 1][2 * width - 1];
 
 
             // Get the rest of the lines in the file and insert them in the char[][] labyrinth
@@ -59,18 +61,18 @@ public class Labyrinth {
 
             int line_index = 0;
 
-            while (line != null){
+            while (line != null) {
 
                 // Checks to see if the given labyrinth can fit in the our char[][]. Otherwise, throws LabyrinthException
-                if (line_index >= 2*length-1){
+                if (line_index >= 2 * length - 1) {
                     throw new LabyrinthException("ERROR: Incorrect file format. Too many rows in labyrinth");
                 }
 
                 // Process each char in the line at add it to the appropriate place in the  char[][]
-                for (int i = 0; i < line.length(); i++){
+                for (int i = 0; i < line.length(); i++) {
 
                     // Checks to see if the given labyrinth can fit in the our char[][]. Otherwise, throws LabyrinthException
-                    if (i >= 2*width-1){
+                    if (i >= 2 * width - 1) {
                         throw new LabyrinthException("ERROR: Incorrect file format. Too many columns in labyrinth");
                     }
 
@@ -85,33 +87,71 @@ public class Labyrinth {
                 line = bufferedReader.readLine();
 
             }
+            this.setStartAndExitNodes();
+            this.insertHorizontalEdges();
+        }
+    }
 
-            /// DO REST FROM HERE
+    private void setStartAndExitNodes(){
+        // Find name of starting and ending nodes
+        int name = 0;
 
-            // Find name of starting and ending nodes
-            int name = 0;
-
-            for (char[] a: this.labyrinth){
-                for (char c: a){
-                    if (c=='s'){
-                        this.start = name;
-                        name++;
-                    }
-                    else if (c=='x'){
-                        this.exit = name;
-                        name++;
-                    }
-                    else if (c=='i'){
-                        name++;
-                    }
+        for (char[] a: this.labyrinth){
+            for (char c: a){
+                if (c=='s'){
+                    this.start = name;
+                    name++;
+                }
+                else if (c=='x'){
+                    this.exit = name;
+                    name++;
+                }
+                else if (c=='i'){
+                    name++;
                 }
             }
-
-
-
-
-
         }
+    }
+
+    private void insertHorizontalEdges() throws GraphException {
+        // Insert all the horizontal edges into the graph
+
+        // Keep track of node names
+        int name = 0;
+
+        // Gets every second row because only finding horizontal edges
+        for (int i = 0; i<this.labyrinth.length; i=i+2){
+            for (char c: this.labyrinth[i]){
+                if (c=='s'){
+                    name++;
+                }
+                else if (c=='x'){
+                    name++;
+                }
+                else if (c=='i'){
+                    name++;
+                }
+                else if (c=='c'){
+
+                    // the edge type for a corridor is -1
+                    // The edge is between the current name for the node node and the next name for the node (which is name +1).
+                    this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), this.CORRIDOR);
+
+                }
+                else if (c=='w'){
+                    // the edge type for a wall is -2
+                    // The edge is between the current name for the node node and the next name for the node (which is name +1).
+                        this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), this.CORRIDOR);
+                }
+                else if (Character.isDigit(c)){
+                        this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), Integer.parseInt(String.valueOf(c)));
+                }
+            }
+        }
+    }
+
+    public void insertVerticalEdges(){
+
     }
 
     public void printLabyrinth(){
@@ -122,9 +162,23 @@ public class Labyrinth {
         System.out.println(this.start+" "+this.exit);
     }
 
-    public static void main(String[] args) throws IOException, LabyrinthException {
+    public void printGraph(){
+
+        int count = 1;
+        for (LinkedList<Edge> linkedList : this.graph.E){
+            System.out.println("Linked List: "+count);
+            for (Edge e: linkedList){
+
+                System.out.println("("+e.firstEndpoint().getName()+", "+e.secondEndpoint().getName()+", "+e.getType()+")");
+            }
+            count++;
+        }
+    }
+
+    public static void main(String[] args) throws IOException, LabyrinthException, GraphException {
         Labyrinth labyrinth = new Labyrinth("lab1");
         labyrinth.printLabyrinth();
+        labyrinth.printGraph();
 
     }
 
