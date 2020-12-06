@@ -141,12 +141,6 @@ public class Labyrinth {
                     this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), this.CORRIDOR);
 
                 }
-                else if (c=='w'){
-                    // the edge type for a wall is -2
-                    // The edge is between the current name for the node node and the next name for the node (which is name +1).
-
-                    this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), this.CORRIDOR);
-                }
                 else if (Character.isDigit(c)){
 
                     // The edge is between the current name for the node node and the next name for the node (which is name +1).
@@ -190,14 +184,6 @@ public class Labyrinth {
                     this.graph.insertEdge(this.graph.getNode(name-5),this.graph.getNode(name), this.CORRIDOR);
 
                 }
-                else if (c=='w'){
-
-                    // the edge type for a wall is -2
-                    // The edge is between the current name for the node node and the next name for the node in the
-                    // following row(which is name +4 -- 4 nodes forward gets us the node in the next row but in the
-                    // same col as the current node)).
-                    this.graph.insertEdge(this.graph.getNode(name-5),this.graph.getNode(name), this.CORRIDOR);
-                }
                 else if (Character.isDigit(c)){
 
                     // The edge is between the current name for the node node and the next name for the node in the
@@ -209,6 +195,15 @@ public class Labyrinth {
             }
         }
     }
+
+
+
+
+
+
+
+
+
 
     public void printLabyrinth(){
 
