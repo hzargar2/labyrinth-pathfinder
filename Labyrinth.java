@@ -1,5 +1,7 @@
+import javax.swing.text.html.HTMLDocument;
 import java.io.*;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class Labyrinth {
@@ -196,6 +198,28 @@ public class Labyrinth {
         }
     }
 
+    // Gets the graph for the labyrinth
+    public Graph getGraph() throws GraphException{
+
+        // If at least 1 node exists in the graph (i.e. graph is not empty), it will have a name =0. If the graph is empty
+        // then node with name 0 won't exist, and Graph.getNode() with throw a GraphException as required.
+        Node node = this.graph.getNode(0);
+
+        // Successfully found at least 1 node in the graph so we return the Graph object
+
+        return this.graph;
+    }
+
+
+    // Implement solve, CONTINUE FROM HERE
+
+
+    public Iterator solve(){
+
+        LinkedList<Edge> linkedList = new LinkedList();
+        return linkedList.iterator();
+
+    }
 
 
 
