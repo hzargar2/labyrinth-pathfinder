@@ -10,6 +10,8 @@ public class Labyrinth {
     int exit;
     int CORRIDOR = -1;
     Stack<Node> stack = new Stack<>();
+    int width;
+    int length;
 
     public Labyrinth(String inputFile) throws IOException, LabyrinthException, NumberFormatException, GraphException {
 
@@ -33,6 +35,8 @@ public class Labyrinth {
             // Convert the strings to ints
             int width = Integer.parseInt(str_width);
             int length = Integer.parseInt(str_length);
+            this.width = width;
+            this.length=length;
 
             // Initialize graph, nuymber of nodes is length x width
             this.graph = new Graph(width * length);
@@ -127,6 +131,8 @@ public class Labyrinth {
     // Insert all the horizontal edges into the graph
     private void insertHorizontalEdges() throws GraphException {
 
+        System.out.println("HORIZONTAL EDGES_______________________________________");
+
         // Keep track of node names
         int name = 0;
 
@@ -147,6 +153,7 @@ public class Labyrinth {
                     // the edge type for a corridor is -1
                     // The edge is between the current name for the node node and the next name for the node (which is name +1).
 
+                    System.out.println("Inserting edge: ("+this.graph.getNode(name-1).getName()+","+this.graph.getNode(name).getName()+","+this.CORRIDOR+")");
                     this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), this.CORRIDOR);
 
                 }
@@ -154,6 +161,7 @@ public class Labyrinth {
 
                     // The edge is between the current name for the node node and the next name for the node (which is name +1).
 
+                    System.out.println("Inserting edge: ("+this.graph.getNode(name-1).getName()+","+this.graph.getNode(name).getName()+","+Integer.parseInt(String.valueOf(c))+")");
                     this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), Integer.parseInt(String.valueOf(c)));
                 }
             }
@@ -163,25 +171,34 @@ public class Labyrinth {
     // Insert all the vertical edges into the graph
     private void insertVerticalEdges() throws GraphException {
 
+        System.out.println("VERTICAL EDGES_______________________________________");
+
         // Gets every second col because only finding vertical edges
         for (int i = 0; i<this.labyrinth[0].length; i=i+2){
 
+            System.out.println("________________________________________");
+            System.out.println("i: "+i);
+
             // Keep track of node names
             int name = i/2;
+
+            System.out.println("name: "+name);
 
             // Analyzes every element in the column by iterating all the rows now
             for (int j =0; j<this.labyrinth.length; j=j+1) {
 
                 char c = this.labyrinth[j][i];
+                System.out.println("row j: "+j+" char: "+c);
+
 
                 if (c=='s'){
-                    name=name+5;
+                    name=name+this.width;
                 }
                 else if (c=='x'){
-                    name=name+5;
+                    name=name+this.width;
                 }
                 else if (c=='i'){
-                    name=name+5;
+                    name=name+this.width;
                 }
                 else if (c=='c'){
 
@@ -189,8 +206,9 @@ public class Labyrinth {
                     // The edge is between the current name for the node node and the next name for the node in the
                     // following row(which is name +4 -- 4 nodes forward gets us the node in the next row but in the
                     // same col as the current node)).
+                    System.out.println("Inserting edge: ("+this.graph.getNode(name-this.width).getName()+","+this.graph.getNode(name).getName()+","+this.CORRIDOR+")");
 
-                    this.graph.insertEdge(this.graph.getNode(name-5),this.graph.getNode(name), this.CORRIDOR);
+                    this.graph.insertEdge(this.graph.getNode(name-this.width),this.graph.getNode(name), this.CORRIDOR);
 
                 }
                 else if (Character.isDigit(c)){
@@ -199,10 +217,12 @@ public class Labyrinth {
                     // following row(which is name +4 -- 4 nodes forward gets us the node in the next row but in the
                     // same col as the current node)).
 
-                    this.graph.insertEdge(this.graph.getNode(name-5),this.graph.getNode(name), Integer.parseInt(String.valueOf(c)));
+                    System.out.println("Inserting edge: ("+this.graph.getNode(name-this.width).getName()+","+this.graph.getNode(name).getName()+","+Integer.parseInt(String.valueOf(c))+")");
+                    this.graph.insertEdge(this.graph.getNode(name-this.width),this.graph.getNode(name), Integer.parseInt(String.valueOf(c)));
                 }
             }
         }
+        System.out.println("____________________________________");
     }
 
     // Gets the graph for the labyrinth
@@ -224,7 +244,7 @@ public class Labyrinth {
 
         node.setMark(true);
         stack.push(node);
-        System.out.println("START: "+Arrays.toString(this.keys.toArray()));
+        System.out.println("START: "+Arrays.toString(this.keys.toArray())+" NODE: "+node.getName());
 
         if (node.getName() == this.exit){
             return true;
@@ -235,87 +255,108 @@ public class Labyrinth {
 
             // while there are edges to consider
             while (iterator.hasNext()){
+
                 Edge edge = (Edge) iterator.next();
 
-                int min_key = -1;
-
-                // Needs a key and we still have keys in the array
-
-                if (edge.getType() >= 0 && this.keys.toArray().length != 0){
-
-                    // Find the smallest key larger than or equal to the edge type to use. Array is sorted so this is the first
-                    // match we encounter
-
-                    for (int k: keys){
-
-                        if (k>=edge.getType() && edge.getType()!=-1){
-                            min_key = k;
-                            System.out.println("Min key: "+min_key);
-
-                            // remove key so we can't use it again.
-                            this.keys.remove((Integer) k);
-
-                            break;
-                        }
-
-                    }
-                }
-
-                // If no key was found (default stays at -1) but the edge requires a key, we skip this edge. No recursive call for it
-                if (min_key==-1 && edge.getType()>=0){
-                    continue;
-                }
+                System.out.println("edge: ("+edge.firstEndpoint().getName()+","+edge.secondEndpoint().getName()+","+edge.getType()+")");
 
                 Node s = edge.firstEndpoint();
                 Node d = edge.secondEndpoint();
 
                 if (node.getName() != s.getName()){
 
-                    if (s.getMark() == false){
-                        if (DFS(s)==true){
-                            return true;
+                    if (s.getMark() == false) {
+
+                        int min_key = -1;
+
+                        // Needs a key and we still have keys in the array
+
+                        if (edge.getType() >= 0 && this.keys.toArray().length != 0){
+
+                            // Find the smallest key larger than or equal to the edge type to use. Array is sorted so this is the first
+                            // match we encounter
+
+                            for (int k: keys){
+
+                                if (k>=edge.getType() && edge.getType()!=-1){
+                                    min_key = k;
+                                    break;
+                                }
+
+                            }
+                        }
+
+                        // If no key was found (default stays at -1) but the edge requires a key, we skip this edge. No recursive call for it
+                        if (min_key==-1 && edge.getType()>=0){
+                            continue;
                         }
                         else {
                             if (min_key!=-1){
-                                System.out.println("Key at end: "+min_key);
+                                System.out.println("removed key: "+min_key);
+                                // remove key so we can't use it again.
+                                this.keys.remove((Integer) min_key);
+                            }
+                        }
+
+                        if (DFS(s) == true) {
+                            return true;
+                        }
+                        else {
+                            s.setMark(false);
+                            if (min_key!=-1){
+                                System.out.println("added key:: "+min_key);
                                 this.keys.add(min_key);
                                 Collections.sort(this.keys);
                                 System.out.println("END: "+Arrays.toString(this.keys.toArray()));
                             }
-                        }
-                    }
-
-                    else {
-                        if (min_key!=-1){
-                            System.out.println("Key at end: "+min_key);
-                            this.keys.add(min_key);
-                            Collections.sort(this.keys);
-                            System.out.println("END: "+Arrays.toString(this.keys.toArray()));
                         }
                     }
                 }
                 else {
-                    if (d.getMark()==false){
+                    if (d.getMark()==false) {
 
-                        if (DFS(d)==true){
-                            return true;
+                        int min_key = -1;
+
+                        // Needs a key and we still have keys in the array
+
+                        if (edge.getType() >= 0 && this.keys.toArray().length != 0){
+
+                            // Find the smallest key larger than or equal to the edge type to use. Array is sorted so this is the first
+                            // match we encounter
+
+                            for (int k: keys){
+
+                                if (k>=edge.getType() && edge.getType()!=-1){
+                                    min_key = k;
+                                    break;
+                                }
+
+                            }
+                        }
+
+                        // If no key was found (default stays at -1) but the edge requires a key, we skip this edge. No recursive call for it
+                        if (min_key==-1 && edge.getType()>=0){
+                            continue;
                         }
                         else {
                             if (min_key!=-1){
-                                System.out.println("Key at end: "+min_key);
+                                System.out.println("removed key: "+min_key);
+                                // remove key so we can't use it again.
+                                this.keys.remove((Integer) min_key);
+                            }
+                        }
+
+                        if (DFS(d) == true) {
+                            return true;
+                        }
+                        else {
+                            d.setMark(false);
+                            if (min_key!=-1){
+                                System.out.println("added key:: "+min_key);
                                 this.keys.add(min_key);
                                 Collections.sort(this.keys);
                                 System.out.println("END: "+Arrays.toString(this.keys.toArray()));
                             }
-                        }
-                    }
-
-                    else {
-                        if (min_key!=-1){
-                            System.out.println("Key at end: "+min_key);
-                            this.keys.add(min_key);
-                            Collections.sort(this.keys);
-                            System.out.println("END: "+Arrays.toString(this.keys.toArray()));
                         }
                     }
                 }
@@ -323,6 +364,9 @@ public class Labyrinth {
 
             this.stack.pop();
 
+
+
+            System.out.println("done traversing edges of Node: "+ node.getName());
             return false;
 
         }
@@ -377,7 +421,7 @@ public class Labyrinth {
     }
 
     public static void main(String[] args) throws IOException, LabyrinthException, GraphException {
-        Labyrinth labyrinth = new Labyrinth("lab2");
+        Labyrinth labyrinth = new Labyrinth("lab5");
         labyrinth.printLabyrinth();
         labyrinth.printGraph();
 
