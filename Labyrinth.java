@@ -89,6 +89,7 @@ public class Labyrinth {
             }
             this.setStartAndExitNodes();
             this.insertHorizontalEdges();
+            this.insertVerticalEdges();
         }
     }
 
@@ -113,8 +114,9 @@ public class Labyrinth {
         }
     }
 
+    // Insert all the horizontal edges into the graph
     private void insertHorizontalEdges() throws GraphException {
-        // Insert all the horizontal edges into the graph
+
 
         // Keep track of node names
         int name = 0;
@@ -135,23 +137,77 @@ public class Labyrinth {
 
                     // the edge type for a corridor is -1
                     // The edge is between the current name for the node node and the next name for the node (which is name +1).
+
                     this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), this.CORRIDOR);
 
                 }
                 else if (c=='w'){
                     // the edge type for a wall is -2
                     // The edge is between the current name for the node node and the next name for the node (which is name +1).
-                        this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), this.CORRIDOR);
+
+                    this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), this.CORRIDOR);
                 }
                 else if (Character.isDigit(c)){
-                        this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), Integer.parseInt(String.valueOf(c)));
+
+                    // The edge is between the current name for the node node and the next name for the node (which is name +1).
+
+                    this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), Integer.parseInt(String.valueOf(c)));
                 }
             }
         }
     }
 
-    public void insertVerticalEdges(){
+    // Insert all the vertical edges into the graph
+    private void insertVerticalEdges() throws GraphException {
 
+        // Gets every second col because only finding vertical edges
+        for (int i = 0; i<this.labyrinth[0].length; i=i+2){
+
+            // Keep track of node names
+            int name = i/2;
+
+            // Analyzes every element in the column by iterating all the rows now
+            for (int j =0; j<this.labyrinth.length; j=j+1) {
+
+                char c = this.labyrinth[j][i];
+
+                if (c=='s'){
+                    name=name+5;
+                }
+                else if (c=='x'){
+                    name=name+5;
+                }
+                else if (c=='i'){
+                    name=name+5;
+                }
+                else if (c=='c'){
+
+                    // the edge type for a corridor is -1
+                    // The edge is between the current name for the node node and the next name for the node in the
+                    // following row(which is name +4 -- 4 nodes forward gets us the node in the next row but in the
+                    // same col as the current node)).
+
+                    this.graph.insertEdge(this.graph.getNode(name-5),this.graph.getNode(name), this.CORRIDOR);
+
+                }
+                else if (c=='w'){
+
+                    // the edge type for a wall is -2
+                    // The edge is between the current name for the node node and the next name for the node in the
+                    // following row(which is name +4 -- 4 nodes forward gets us the node in the next row but in the
+                    // same col as the current node)).
+                    this.graph.insertEdge(this.graph.getNode(name-5),this.graph.getNode(name), this.CORRIDOR);
+                }
+                else if (Character.isDigit(c)){
+
+                    // The edge is between the current name for the node node and the next name for the node in the
+                    // following row(which is name +4 -- 4 nodes forward gets us the node in the next row but in the
+                    // same col as the current node)).
+
+                    this.graph.insertEdge(this.graph.getNode(name-5),this.graph.getNode(name), Integer.parseInt(String.valueOf(c)));
+                }
+            }
+        }
     }
 
     public void printLabyrinth(){
