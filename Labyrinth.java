@@ -1,18 +1,15 @@
-import javax.swing.text.html.HTMLDocument;
 import java.io.*;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 public class Labyrinth {
 
-    int[] keys;
+    ArrayList<Integer> keys = new ArrayList<>();
     char[][] labyrinth;
     Graph graph;
     int start;
     int exit;
     int CORRIDOR = -1;
-    int WALL = -2;
+    Stack<Node> stack = new Stack<>();
 
     public Labyrinth(String inputFile) throws IOException, LabyrinthException, NumberFormatException, GraphException {
 
@@ -43,14 +40,25 @@ public class Labyrinth {
             // Convert the line for the keys to an array of strings and subsequently to an array of integers.
 
             String[] array_str_keys = str_keys.split(" ");
-            int[] array_int_keys = new int[array_str_keys.length];
+            ArrayList<Integer> array_int_keys = new ArrayList<Integer>();
+
 
             for (int i = 0; i < array_str_keys.length; i++) {
-                array_int_keys[i] = Integer.parseInt(array_str_keys[i]);
+                array_int_keys.add(Integer.parseInt(array_str_keys[i]));
             }
 
-            // Store array of int keys in an instance variable
-            this.keys = array_int_keys;
+            // Convert the array_int_keys to an array of all the individual keys. For example, 1 0 0 2 0, would
+            // break down to 1 key of type 0 in th array, and 2 keys of type 3 in the array.
+
+            for (int i = 0; i< array_int_keys.toArray().length; i++){
+                if (array_int_keys.get(i) != 0){
+                    for (int j =0; j<array_int_keys.get(i); j++){
+                        this.keys.add(i);
+                    }
+                }
+            }
+
+            Collections.sort(this.keys);
 
             // Initialize a char[][] array with the right size, multiply each dimension by 2 and subtract by 1 because there is an edge
             // between each node that is also stored in a char in char[][] except the last node in each row and column
@@ -118,7 +126,6 @@ public class Labyrinth {
 
     // Insert all the horizontal edges into the graph
     private void insertHorizontalEdges() throws GraphException {
-
 
         // Keep track of node names
         int name = 0;
@@ -211,13 +218,132 @@ public class Labyrinth {
     }
 
 
-    // Implement solve, CONTINUE FROM HERE
+    // Implement solve, CONTINUE FROM HERE , need to fix hwo that keyd aren;t being added back o t
+
+    public boolean DFS(Node node) throws GraphException {
+
+        node.setMark(true);
+        stack.push(node);
+        System.out.println("START: "+Arrays.toString(this.keys.toArray()));
+
+        if (node.getName() == this.exit){
+            return true;
+        }
+        else {
+
+            Iterator iterator = this.graph.incidentEdges(node);
+
+            // while there are edges to consider
+            while (iterator.hasNext()){
+                Edge edge = (Edge) iterator.next();
+
+                int min_key = -1;
+
+                // Needs a key and we still have keys in the array
+
+                if (edge.getType() >= 0 && this.keys.toArray().length != 0){
+
+                    // Find the smallest key larger than or equal to the edge type to use. Array is sorted so this is the first
+                    // match we encounter
+
+                    for (int k: keys){
+
+                        if (k>=edge.getType() && edge.getType()!=-1){
+                            min_key = k;
+                            System.out.println("Min key: "+min_key);
+
+                            // remove key so we can't use it again.
+                            this.keys.remove((Integer) k);
+
+                            break;
+                        }
+
+                    }
+                }
+
+                // If no key was found (default stays at -1) but the edge requires a key, we skip this edge. No recursive call for it
+                if (min_key==-1 && edge.getType()>=0){
+                    continue;
+                }
+
+                Node s = edge.firstEndpoint();
+                Node d = edge.secondEndpoint();
+
+                if (node.getName() != s.getName()){
+
+                    if (s.getMark() == false){
+                        if (DFS(s)==true){
+                            return true;
+                        }
+                        else {
+                            if (min_key!=-1){
+                                System.out.println("Key at end: "+min_key);
+                                this.keys.add(min_key);
+                                Collections.sort(this.keys);
+                                System.out.println("END: "+Arrays.toString(this.keys.toArray()));
+                            }
+                        }
+                    }
+
+                    else {
+                        if (min_key!=-1){
+                            System.out.println("Key at end: "+min_key);
+                            this.keys.add(min_key);
+                            Collections.sort(this.keys);
+                            System.out.println("END: "+Arrays.toString(this.keys.toArray()));
+                        }
+                    }
+                }
+                else {
+                    if (d.getMark()==false){
+
+                        if (DFS(d)==true){
+                            return true;
+                        }
+                        else {
+                            if (min_key!=-1){
+                                System.out.println("Key at end: "+min_key);
+                                this.keys.add(min_key);
+                                Collections.sort(this.keys);
+                                System.out.println("END: "+Arrays.toString(this.keys.toArray()));
+                            }
+                        }
+                    }
+
+                    else {
+                        if (min_key!=-1){
+                            System.out.println("Key at end: "+min_key);
+                            this.keys.add(min_key);
+                            Collections.sort(this.keys);
+                            System.out.println("END: "+Arrays.toString(this.keys.toArray()));
+                        }
+                    }
+                }
+            }
+
+            this.stack.pop();
+
+            return false;
+
+        }
 
 
-    public Iterator solve(){
 
-        LinkedList<Edge> linkedList = new LinkedList();
-        return linkedList.iterator();
+
+
+
+    }
+    public Iterator<Node> solve() throws GraphException {
+
+        // Checks to see if graph has anything in it, otherwise, it throws an exception
+        Graph graph = this.getGraph();
+
+        if (DFS(graph.getNode(this.start)) == true){
+            return this.stack.iterator();
+        }
+        else {
+            return null;
+        }
 
     }
 
@@ -251,7 +377,7 @@ public class Labyrinth {
     }
 
     public static void main(String[] args) throws IOException, LabyrinthException, GraphException {
-        Labyrinth labyrinth = new Labyrinth("lab1");
+        Labyrinth labyrinth = new Labyrinth("lab2");
         labyrinth.printLabyrinth();
         labyrinth.printGraph();
 

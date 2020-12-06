@@ -123,7 +123,7 @@ public class Graph implements GraphADT{
         throw new GraphException("ERROR: No node found with this name.");
     }
 
-    public Iterator incidentEdges(Node u) throws GraphException {
+    public Iterator<Edge> incidentEdges(Node u) throws GraphException {
 
         // If node doesn't exist in the graph it throws a GraphException
         if (nodeExists(u) == false){
