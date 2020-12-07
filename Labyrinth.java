@@ -3,15 +3,15 @@ import java.util.*;
 
 public class Labyrinth {
 
-    ArrayList<Integer> keys = new ArrayList<>();
-    char[][] labyrinth;
-    Graph graph;
-    int start;
-    int exit;
-    int CORRIDOR = -1;
-    Stack<Node> stack = new Stack<>();
-    int width;
-    int length;
+    private ArrayList<Integer> keys = new ArrayList<>();
+    private char[][] labyrinth;
+    private Graph graph;
+    private int start;
+    private int exit;
+    private int CORRIDOR = -1;
+    private Stack<Node> stack = new Stack<>();
+    private int width;
+    private int length;
 
     public Labyrinth(String inputFile) throws IOException, LabyrinthException, NumberFormatException, GraphException {
 
@@ -35,6 +35,7 @@ public class Labyrinth {
             // Convert the strings to ints
             int width = Integer.parseInt(str_width);
             int length = Integer.parseInt(str_length);
+
             this.width = width;
             this.length=length;
 
@@ -101,18 +102,26 @@ public class Labyrinth {
                 line = bufferedReader.readLine();
 
             }
+
+            // Finds the start adn exit nodes and inserts all the edges into the graph
             this.setStartAndExitNodes();
             this.insertHorizontalEdges();
             this.insertVerticalEdges();
         }
     }
 
+    // Find name of starting and ending nodes
     private void setStartAndExitNodes(){
-        // Find name of starting and ending nodes
+
+        // Set counter for the node name
         int name = 0;
 
+        // Iterate through all char in the each row
         for (char[] a: this.labyrinth){
             for (char c: a){
+
+                // If we come across a room, we increment the anme by 1. If we come across an exit or start node, we save
+                // the node name in an instance variable
                 if (c=='s'){
                     this.start = name;
                     name++;
@@ -131,14 +140,17 @@ public class Labyrinth {
     // Insert all the horizontal edges into the graph
     private void insertHorizontalEdges() throws GraphException {
 
-        System.out.println("HORIZONTAL EDGES_______________________________________");
-
         // Keep track of node names
         int name = 0;
 
         // Gets every second row because only finding horizontal edges
         for (int i = 0; i<this.labyrinth.length; i=i+2){
+
+            // Iterates through all the char in that row
+
             for (char c: this.labyrinth[i]){
+
+                // If the char is a room, we increment the name by 1
                 if (c=='s'){
                     name++;
                 }
@@ -153,7 +165,6 @@ public class Labyrinth {
                     // the edge type for a corridor is -1
                     // The edge is between the current name for the node node and the next name for the node (which is name +1).
 
-                    System.out.println("Inserting edge: ("+this.graph.getNode(name-1).getName()+","+this.graph.getNode(name).getName()+","+this.CORRIDOR+")");
                     this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), this.CORRIDOR);
 
                 }
@@ -161,8 +172,7 @@ public class Labyrinth {
 
                     // The edge is between the current name for the node node and the next name for the node (which is name +1).
 
-                    System.out.println("Inserting edge: ("+this.graph.getNode(name-1).getName()+","+this.graph.getNode(name).getName()+","+Integer.parseInt(String.valueOf(c))+")");
-                    this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), Integer.parseInt(String.valueOf(c)));
+                     this.graph.insertEdge(this.graph.getNode(name-1),this.graph.getNode(name), Integer.parseInt(String.valueOf(c)));
                 }
             }
         }
@@ -171,25 +181,19 @@ public class Labyrinth {
     // Insert all the vertical edges into the graph
     private void insertVerticalEdges() throws GraphException {
 
-        System.out.println("VERTICAL EDGES_______________________________________");
-
         // Gets every second col because only finding vertical edges
         for (int i = 0; i<this.labyrinth[0].length; i=i+2){
 
-            System.out.println("________________________________________");
-            System.out.println("i: "+i);
-
-            // Keep track of node names
+            // Keep track of node names, which is the i/2 since there every odd i is not a room but the type of edge
             int name = i/2;
-
-            System.out.println("name: "+name);
 
             // Analyzes every element in the column by iterating all the rows now
             for (int j =0; j<this.labyrinth.length; j=j+1) {
 
                 char c = this.labyrinth[j][i];
-                System.out.println("row j: "+j+" char: "+c);
 
+                // If char is a room, we increment name by the number of elements in a row because we want the node
+                // in the next row but same column as the current node
 
                 if (c=='s'){
                     name=name+this.width;
@@ -206,7 +210,6 @@ public class Labyrinth {
                     // The edge is between the current name for the node node and the next name for the node in the
                     // following row(which is name +4 -- 4 nodes forward gets us the node in the next row but in the
                     // same col as the current node)).
-                    System.out.println("Inserting edge: ("+this.graph.getNode(name-this.width).getName()+","+this.graph.getNode(name).getName()+","+this.CORRIDOR+")");
 
                     this.graph.insertEdge(this.graph.getNode(name-this.width),this.graph.getNode(name), this.CORRIDOR);
 
@@ -217,12 +220,10 @@ public class Labyrinth {
                     // following row(which is name +4 -- 4 nodes forward gets us the node in the next row but in the
                     // same col as the current node)).
 
-                    System.out.println("Inserting edge: ("+this.graph.getNode(name-this.width).getName()+","+this.graph.getNode(name).getName()+","+Integer.parseInt(String.valueOf(c))+")");
                     this.graph.insertEdge(this.graph.getNode(name-this.width),this.graph.getNode(name), Integer.parseInt(String.valueOf(c)));
                 }
             }
         }
-        System.out.println("____________________________________");
     }
 
     // Gets the graph for the labyrinth
@@ -230,6 +231,7 @@ public class Labyrinth {
 
         // If at least 1 node exists in the graph (i.e. graph is not empty), it will have a name =0. If the graph is empty
         // then node with name 0 won't exist, and Graph.getNode() with throw a GraphException as required.
+
         Node node = this.graph.getNode(0);
 
         // Successfully found at least 1 node in the graph so we return the Graph object
@@ -237,40 +239,41 @@ public class Labyrinth {
         return this.graph;
     }
 
+    private boolean DFS(Node node) throws GraphException {
 
-    // Implement solve, CONTINUE FROM HERE , need to fix hwo that keyd aren;t being added back o t
-
-    public boolean DFS(Node node) throws GraphException {
-
+        // Mark the node and push it onto the stack
         node.setMark(true);
         stack.push(node);
-        System.out.println("START: "+Arrays.toString(this.keys.toArray())+" NODE: "+node.getName());
 
+
+        // Base case: if current node is the exit node then the path has been found
         if (node.getName() == this.exit){
             return true;
         }
+
         else {
 
-            Iterator iterator = this.graph.incidentEdges(node);
+            // Gets Iterator containing all the Edge objects for this Node object
+            Iterator<Edge> iterator = this.graph.incidentEdges(node);
 
-            // while there are edges to consider
+            // Iterate through all the edges for this Node
             while (iterator.hasNext()){
 
-                Edge edge = (Edge) iterator.next();
-
-                System.out.println("edge: ("+edge.firstEndpoint().getName()+","+edge.secondEndpoint().getName()+","+edge.getType()+")");
+                Edge edge = iterator.next();
 
                 Node s = edge.firstEndpoint();
                 Node d = edge.secondEndpoint();
 
+                // Makes sure we get the node at the endpoint that is not the current node. i.e node at other side of edge.
                 if (node.getName() != s.getName()){
 
+                    // If the node isn't marked
                     if (s.getMark() == false) {
 
+                        // Default minimum key value found
                         int min_key = -1;
 
-                        // Needs a key and we still have keys in the array
-
+                        // If edge needs a key and we still have keys in the array
                         if (edge.getType() >= 0 && this.keys.toArray().length != 0){
 
                             // Find the smallest key larger than or equal to the edge type to use. Array is sorted so this is the first
@@ -286,39 +289,46 @@ public class Labyrinth {
                             }
                         }
 
-                        // If no key was found (default stays at -1) but the edge requires a key, we skip this edge. No recursive call for it
+                        // If no key was found (min_keydefault stays at -1) but the edge requires a key, we skip this
+                        // edge. No recursive call for it because we can't traverse it
                         if (min_key==-1 && edge.getType()>=0){
                             continue;
                         }
+
+                        // Otherwise, we remove the key from our set of available keys as its considered "used"
+                        // and can't be used again.
                         else {
                             if (min_key!=-1){
-                                System.out.println("removed key: "+min_key);
-                                // remove key so we can't use it again.
                                 this.keys.remove((Integer) min_key);
                             }
                         }
 
+                        // Make recursive call to DFS since the continue condition above wasn't met
                         if (DFS(s) == true) {
                             return true;
                         }
+                        // If DFS returns false, then no path found from this node so we unmark the node in case
+                        // another valid path exists with this node being part of it so we can traverse it
+                        // and we also add the key we used back to the list of possible keys so we can use it again in
+                        // a new path.
                         else {
                             s.setMark(false);
                             if (min_key!=-1){
-                                System.out.println("added key:: "+min_key);
                                 this.keys.add(min_key);
                                 Collections.sort(this.keys);
-                                System.out.println("END: "+Arrays.toString(this.keys.toArray()));
                             }
                         }
                     }
                 }
+
                 else {
+                    // Traverses the node that is different from the current node. If the node isn't marked.
                     if (d.getMark()==false) {
 
+                        // Default minimum key value found
                         int min_key = -1;
 
-                        // Needs a key and we still have keys in the array
-
+                        // If edge needs a key and we still have keys in the array
                         if (edge.getType() >= 0 && this.keys.toArray().length != 0){
 
                             // Find the smallest key larger than or equal to the edge type to use. Array is sorted so this is the first
@@ -334,49 +344,48 @@ public class Labyrinth {
                             }
                         }
 
-                        // If no key was found (default stays at -1) but the edge requires a key, we skip this edge. No recursive call for it
+                        // If no key was found (min_keydefault stays at -1) but the edge requires a key, we skip this
+                        // edge. No recursive call for it because we can't traverse it
                         if (min_key==-1 && edge.getType()>=0){
                             continue;
                         }
+
+                        // Otherwise, we remove the key from our set of available keys as its considered "used"
+                        // and can't be used again.
                         else {
                             if (min_key!=-1){
-                                System.out.println("removed key: "+min_key);
-                                // remove key so we can't use it again.
                                 this.keys.remove((Integer) min_key);
                             }
                         }
 
+                        // Make recursive call to DFS since the continue condition above wasn't met
                         if (DFS(d) == true) {
                             return true;
                         }
+                        // If DFS returns false, then no path found from this node so we unmark the node in case
+                        // another valid path exists with this node being part of it so we can traverse it
+                        // and we also add the key we used back to the list of possible keys so we can use it again in
+                        // a new path.
                         else {
                             d.setMark(false);
                             if (min_key!=-1){
-                                System.out.println("added key:: "+min_key);
                                 this.keys.add(min_key);
                                 Collections.sort(this.keys);
-                                System.out.println("END: "+Arrays.toString(this.keys.toArray()));
                             }
                         }
                     }
                 }
             }
 
+            // No path found from this node we remove it from the stack
             this.stack.pop();
 
-
-
-            System.out.println("done traversing edges of Node: "+ node.getName());
+            // Return false if no path found from this node.
             return false;
-
         }
-
-
-
-
-
-
     }
+
+    // Returns Iterator object containing all the nodes for the path found if a path exists. Otherwise, returns null.
     public Iterator<Node> solve() throws GraphException {
 
         // Checks to see if graph has anything in it, otherwise, it throws an exception
@@ -388,43 +397,5 @@ public class Labyrinth {
         else {
             return null;
         }
-
     }
-
-
-
-
-
-
-
-
-
-    public void printLabyrinth(){
-
-        for(char[] a : this.labyrinth) {
-            System.out.println(Arrays.toString(a));
-        }
-        System.out.println(this.start+" "+this.exit);
-    }
-
-    public void printGraph(){
-
-        int count = 1;
-        for (LinkedList<Edge> linkedList : this.graph.E){
-            System.out.println("Linked List: "+count);
-            for (Edge e: linkedList){
-
-                System.out.println("("+e.firstEndpoint().getName()+", "+e.secondEndpoint().getName()+", "+e.getType()+")");
-            }
-            count++;
-        }
-    }
-
-    public static void main(String[] args) throws IOException, LabyrinthException, GraphException {
-        Labyrinth labyrinth = new Labyrinth("lab5");
-        labyrinth.printLabyrinth();
-        labyrinth.printGraph();
-
-    }
-
 }

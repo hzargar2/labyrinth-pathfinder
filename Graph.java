@@ -4,9 +4,12 @@ import java.util.LinkedList;
 public class Graph implements GraphADT{
 
     // Initializes a graph using adjacency list
-    public Node[] V;
-    // THis is an array of linked lists that store Edge objects
-    public LinkedList<Edge>[] E;
+
+    // Array of Nodes
+    private Node[] V;
+
+    // This is an array of linked lists that store Edge objects for each Node object
+    private LinkedList<Edge>[] E;
 
     public Graph(int n){
 
