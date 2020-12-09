@@ -264,30 +264,31 @@ public class Labyrinth {
                 Node s = edge.firstEndpoint();
                 Node d = edge.secondEndpoint();
 
+                // Default minimum key value found
+                int min_key = -1;
+
+                // If edge needs a key and we still have keys in the array
+                if (edge.getType() >= 0 && this.keys.toArray().length != 0){
+
+                    // Find the smallest key larger than or equal to the edge type to use. Array is sorted so this is the first
+                    // match we encounter
+
+                    for (int k: keys){
+
+                        if (k>=edge.getType() && edge.getType()!=-1){
+                            min_key = k;
+                            break;
+                        }
+
+                    }
+                }
+
                 // Makes sure we get the node at the endpoint that is not the current node. i.e node at other side of edge.
                 if (node.getName() != s.getName()){
 
                     // If the node isn't marked
                     if (s.getMark() == false) {
 
-                        // Default minimum key value found
-                        int min_key = -1;
-
-                        // If edge needs a key and we still have keys in the array
-                        if (edge.getType() >= 0 && this.keys.toArray().length != 0){
-
-                            // Find the smallest key larger than or equal to the edge type to use. Array is sorted so this is the first
-                            // match we encounter
-
-                            for (int k: keys){
-
-                                if (k>=edge.getType() && edge.getType()!=-1){
-                                    min_key = k;
-                                    break;
-                                }
-
-                            }
-                        }
 
                         // If no key was found (min_keydefault stays at -1) but the edge requires a key, we skip this
                         // edge. No recursive call for it because we can't traverse it
@@ -322,27 +323,9 @@ public class Labyrinth {
                 }
 
                 else {
+
                     // Traverses the node that is different from the current node. If the node isn't marked.
                     if (d.getMark()==false) {
-
-                        // Default minimum key value found
-                        int min_key = -1;
-
-                        // If edge needs a key and we still have keys in the array
-                        if (edge.getType() >= 0 && this.keys.toArray().length != 0){
-
-                            // Find the smallest key larger than or equal to the edge type to use. Array is sorted so this is the first
-                            // match we encounter
-
-                            for (int k: keys){
-
-                                if (k>=edge.getType() && edge.getType()!=-1){
-                                    min_key = k;
-                                    break;
-                                }
-
-                            }
-                        }
 
                         // If no key was found (min_keydefault stays at -1) but the edge requires a key, we skip this
                         // edge. No recursive call for it because we can't traverse it
